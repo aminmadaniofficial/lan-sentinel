@@ -1,5 +1,6 @@
 import time
 import sys
+import os
 import logging
 from rich.console import Console
 from src.scanner import NetworkScanner
@@ -15,10 +16,14 @@ logging.basicConfig(
 
 console = Console()
 
+# Resolve absolute path for config.json relative to project root
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
+
 def main():
     try:
-        # Load configs
-        config_manager = ConfigManager("config.json")
+        # Load configs using the absolute path
+        config_manager = ConfigManager(CONFIG_PATH)
         config = config_manager.load_config()
 
         scanner = NetworkScanner(target_subnet=config["target_subnet"])
@@ -28,7 +33,7 @@ def main():
         console.print("[bold green]⚡ LAN Sentinel Security Service Active...[/bold green]")
         
         while True:
-            # Showing a cool loading spinner during active scan
+            # Show a cool loading spinner during active scan
             with console.status("[bold yellow]Scanning network, please wait...", spinner="earth"):
                 scanned_devices = scanner.scan()
 
@@ -50,7 +55,7 @@ def main():
                 sys.stdout.write(f"\r\033[K[dim]⏳ Next scan in {remaining} seconds... (Ctrl+C to quit)[/dim]")
                 sys.stdout.flush()
                 time.sleep(1)
-            console.print()  # Move to the next line after countdown finishes
+            console.print()
 
     except KeyboardInterrupt:
         console.print("\n[bold orange3]⚠ Service stopped by operator.[/bold orange3]")

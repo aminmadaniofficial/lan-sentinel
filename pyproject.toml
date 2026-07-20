@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lan-sentinel"
+version = "1.0.0"
+description = "A lightweight local network security monitor and device discovery CLI tool"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Amin Madani", email = "aminmadaniofficial@github.com"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+]
+dependencies = [
+    "scapy>=2.5.0",
+    "rich>=13.7.0"
+]
+
+[project.scripts]
+lansentinel = "src.main:main"
