@@ -1,14 +1,10 @@
 {
-  "target_subnet": "192.168.1.0/24",
-  "scan_interval_seconds": 60,
+  "target_subnet": "172.30.64.0/24",
+  "scan_interval_seconds": 10,
   "known_devices": [
     {
-      "mac": "00:11:22:33:44:55",
-      "name": "My Router"
-    },
-    {
-      "mac": "aa:bb:cc:dd:ee:ff",
-      "name": "My Ubuntu WSL"
+      "mac": "00:15:5d:3a:30:a8",
+      "name": "Windows Host Gateway"
     }
   ]
 }

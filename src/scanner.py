@@ -2,39 +2,43 @@ import logging
 from typing import List
 from scapy.all import ARP, Ether, srp
 from src.models import Device
+from src.vendor_resolver import VendorResolver
 
 logger = logging.getLogger(__name__)
 
 class NetworkScanner:
-    """Handles low-level network scanning operations using ARP requests."""
+    """Handles network scanning and device discovery."""
 
     def __init__(self, target_subnet: str):
         self.target_subnet = target_subnet
 
     def scan(self) -> List[Device]:
-        """
-        Scans the target subnet using ARP requests.
-        Returns a list of discovered Device objects.
-        """
-        logger.info(f"Initiating ARP scan on subnet: {self.target_subnet}")
+        """Scans the subnet using ARP and resolves hardware vendors."""
         discovered_devices: List[Device] = []
 
         try:
-            # Create an ARP request packet broadcasted to the network
+            # Construct ARP Packet
             arp_request = ARP(pdst=self.target_subnet)
             broadcast = Ether(dst="ff:ff:ff:ff:ff:ff")
             packet = broadcast / arp_request
 
-            # Send and receive packets at Layer 2 (timeout set to 2 seconds)
+            # Send/Receive packets
             answered_list, _ = srp(packet, timeout=2, verbose=False)
 
-            for sent, received in answered_list:
-                device = Device(ip=received.psrc, mac=received.hwsrc)
+            for _, received in answered_list:
+                mac = received.hwsrc
+                vendor = VendorResolver.resolve(mac)
+                
+                device = Device(
+                    ip=received.psrc, 
+                    mac=mac, 
+                    vendor=vendor
+                )
                 discovered_devices.append(device)
 
         except PermissionError:
-            logger.error("Scan failed: Root privileges (sudo) are required to perform ARP scanning.")
+            logger.error("Scan failed: Insufficient privileges (sudo required).")
         except Exception as e:
-            logger.error(f"An unexpected error occurred during the scan: {e}")
+            logger.error(f"Scan error: {e}")
 
         return discovered_devices
